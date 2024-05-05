@@ -71,9 +71,9 @@ def main():
             secret_key='H5MQWLCSVTOHZ20EQU920IEATPIDG9',
             secure=False
     )
-    artefact = get_artefact(minio_client, '', artefact_name)
+    artefact = get_artefact(minio_client, 'bucket', artefact_name)
     signed_artefact = sign(artefact)
-    replace_files(minio_client, '', artefact_name, signed_artefact)
+    replace_files(minio_client, 'bucket', artefact_name, signed_artefact)
 
 
 if __name__ == "__main__":
