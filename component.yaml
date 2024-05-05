@@ -1,0 +1,16 @@
+name: Sign Artefact
+description: Sign created artefact to ensure its integrity
+metadata:
+  annotations:
+    author: Eva Nedeliaková <evanedeliakova@gmail.com>
+inputs:
+  - {name: artefact name, type: String, description: 'Artefact name is used to allocate it and be able to sign it'}
+implementation:
+  container:
+    image: endocker299/sign-artefact:latest
+    command: [
+        python3,
+        /app/sign.py,
+        --artefact-name,
+        inputValue: artefact name,
+    ]
