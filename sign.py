@@ -21,8 +21,8 @@ def get_artefact(minio_client, bucket_name, object_name):
         return None
 
 
-def sign(file_path):
-    with open("private_key.pem", "rb") as key_file:
+def sign(file_path, private_key_path):
+    with open(private_key_path, "rb") as key_file:
         private_key = load_pem_private_key(key_file.read(), password=None)
 
     # Read the content of the file to sign
@@ -39,11 +39,11 @@ def sign(file_path):
         hashes.SHA256()
     )
 
-
-    with open("signature.sig", "wb") as sig_file:
+    signature_file_path = file_path + '.sig'
+    with open(signature_file_path, "wb") as sig_file:
         sig_file.write(signature)
 
-    return sig_file
+    return signature_file_path
 
 
 def replace_files(minio_client, bucket_name, original_artefact, signed_artefact):
