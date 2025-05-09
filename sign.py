@@ -63,10 +63,10 @@ def replace_files(minio_client, bucket_name, original_artefact, signed_artefact)
 def main():
     private_key_path = "/keys/private.pem"
     parser = argparse.ArgumentParser(description='Find and delete run pods.')
-    parser.add_argument('--artefact-name', type=str)
+    parser.add_argument('--artefact-path', type=str)
     args = parser.parse_args()
-    artefact_name = args.artefact_name
-    print("artefact name " + artefact_name)
+    artefact_name = args.artefact_path
+    print("artefact name " + artefact_path)
     minio_client = Minio(
             "minio.kubeflow.svc.cluster.local:9000",
             access_key='minio',
