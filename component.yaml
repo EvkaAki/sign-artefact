@@ -11,6 +11,8 @@ implementation:
     command: [
         python3,
         /app/sign.py,
-        --artefact-name,
-        inputValue: artefact name,
+    ]
+    args: [
+      --artefact-name,
+      { inputValue: pod path }
     ]

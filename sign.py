@@ -60,6 +60,7 @@ def replace_files(minio_client, bucket_name, original_artefact, signed_artefact)
         except S3Error as e:
             print("Error during deletion from Minio:", e)
 
+
 def main():
     private_key_path = "/keys/private.pem"
     parser = argparse.ArgumentParser(description='Find and delete run pods.')
