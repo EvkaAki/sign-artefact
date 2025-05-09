@@ -61,6 +61,7 @@ def replace_files(minio_client, bucket_name, original_artefact, signed_artefact)
             print("Error during deletion from Minio:", e)
 
 def main():
+    private_key_path = "/keys/private.pem"
     parser = argparse.ArgumentParser(description='Find and delete run pods.')
     parser.add_argument('--artefact-name', type=str)
     args = parser.parse_args()
@@ -72,7 +73,7 @@ def main():
             secure=False
     )
     artefact = get_artefact(minio_client, 'bucket', artefact_name)
-    signed_artefact = sign(artefact)
+    signed_artefact = sign(artefact, private_key_path)
     replace_files(minio_client, 'bucket', artefact_name, signed_artefact)
 
 
