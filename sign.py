@@ -69,8 +69,8 @@ def main():
     parser.add_argument('--artefact-path', type=str)
 
     args = parser.parse_args()
-    with open(args.artefact_path, 'r') as f:
-        artefact_name = f.read().strip()
+    print(args)
+    artefact_name = "temp"
 
     minio_client = Minio(
             "minio.kubeflow.svc.cluster.local:9000",
