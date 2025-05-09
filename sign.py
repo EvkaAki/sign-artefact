@@ -13,8 +13,6 @@ def get_artefact(minio_client, bucket_name, object_name):
     file_path = './tempfile'
     try:
         # Get object and save it to file_path
-        print("bucket_name " + bucket_name)
-        print("object_name " + object_name)
         minio_client.fget_object(bucket_name, object_name, file_path)
         print("Download successful")
         return file_path
@@ -62,16 +60,13 @@ def replace_files(minio_client, bucket_name, original_artefact, signed_artefact)
         except S3Error as e:
             print("Error during deletion from Minio:", e)
 
-
 def main():
     private_key_path = "/keys/private.pem"
     parser = argparse.ArgumentParser(description='Find and delete run pods.')
-    parser.add_argument('--artefact-path', type=str)
-
+    parser.add_argument('--artefact-name', type=str)
     args = parser.parse_args()
-    print(args)
-    artefact_name = "temp"
-
+    artefact_name = args.artefact_name
+    print("artefact name " + artefact_name)
     minio_client = Minio(
             "minio.kubeflow.svc.cluster.local:9000",
             access_key='minio',
