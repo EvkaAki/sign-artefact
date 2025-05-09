@@ -4,7 +4,7 @@ metadata:
   annotations:
     author: Eva Nedeliaková <evanedeliakova@gmail.com>
 inputs:
-  - {name: artefact name, type: String, description: 'Artefact name is used to allocate it and be able to sign it'}
+  - {name: artefact path, type: String, description: 'Artefact name is used to allocate it and be able to sign it'}
 implementation:
   container:
     image: endocker299/sign-artefact:latest
@@ -13,6 +13,6 @@ implementation:
         /app/sign.py,
     ]
     args: [
-      --artefact-name,
-      { inputValue: pod path }
+      --artefact-path,
+      {inputValue: artefact path}
     ]
