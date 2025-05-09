@@ -13,6 +13,8 @@ def get_artefact(minio_client, bucket_name, object_name):
     file_path = './tempfile'
     try:
         # Get object and save it to file_path
+        print("bucket_name " + bucket_name)
+        print("object_name " + object_name)
         minio_client.fget_object(bucket_name, object_name, file_path)
         print("Download successful")
         return file_path
