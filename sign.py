@@ -72,9 +72,9 @@ def main():
             secret_key='FY2YHUU7A4ITWS2FTSAR6VKBBH3AFL',
             secure=False
     )
-    artefact = get_artefact(minio_client, 'bucket', artefact_name)
+    artefact = get_artefact(minio_client, 'mlpipeline', artefact_name)
     signed_artefact = sign(artefact, private_key_path)
-    replace_files(minio_client, 'bucket', artefact_name, signed_artefact)
+    replace_files(minio_client, 'mlpipeline', artefact_name, signed_artefact)
 
 
 if __name__ == "__main__":
