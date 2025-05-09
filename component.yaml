@@ -14,5 +14,5 @@ implementation:
     ]
     args: [
       --artefact-path,
-      {inputValue: artefact path}
+      {inputPath: artefact path}
     ]
