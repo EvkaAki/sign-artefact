@@ -12,6 +12,7 @@ def get_artefact(minio_client, bucket_name, object_name):
     # File path to save the downloaded file
     file_path = './tempfile'
     try:
+        object_name = object_name.lstrip('/')  # This will remove any leading slashes
         # Get object and save it to file_path
         minio_client.fget_object(bucket_name, object_name, file_path)
         print("Download successful")
@@ -59,6 +60,7 @@ def replace_files(minio_client, bucket_name, original_artefact, signed_artefact)
             print("Original unsigned file removed from Minio successfully")
         except S3Error as e:
             print("Error during deletion from Minio:", e)
+
 
 def main():
     private_key_path = "/keys/private.pem"
