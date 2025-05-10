@@ -95,7 +95,10 @@ def main():
         signature = sign(artefact, private_key)
         if signature:
             zip_path = package_signed_artefact(artefact, signature)
-            zip_name = f"{artefact_name}.signed.zip"
+            experiment = artefact_name.split("/")[-3]
+            run_id = artefact_name.split("/")[-2]
+            filename = os.path.splitext(artefact_name.split("/")[-1])[0] + ".signed.zip"
+            zip_name = f"{experiment}/{run_id}/{filename}"
             minio_client.fput_object('artifacts', zip_name, zip_path)
             try:
                 minio_client.remove_object("mlpipeline", artefact_name)
