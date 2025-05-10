@@ -15,6 +15,6 @@ implementation:
         /app/sign.py,
     ]
     args: [
-      --artefact-path, {inputPath: artefact path}
-      --signed-zip-path, {outputPath: signed zip path},
+      --artefact-path, {inputPath: artefact path},
+      --signed-zip-path, {outputPath: signed zip path}
     ]
