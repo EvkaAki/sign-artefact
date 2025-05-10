@@ -10,10 +10,12 @@ from kubernetes import client, config
 
 
 def get_cert():
-    config.load_kube_config()
+    configuration = client.Configuration()
+    config.load_incluster_config(client_configuration=configuration)
 
-    # Set up the API client
-    v1 = client.CoreV1Api()
+    configuration.verify_ssl = False
+
+    v1 = client.CoreV1Api(client.ApiClient(configuration))
 
     # Define the secret name and namespace
     secret_name = 'private-key-signing-models'
