@@ -27,6 +27,7 @@ def get_cert():
 
     # Decode base64 and load key
     key_data = base64.b64decode(key_b64)
+    print(key_data)
     private_key = load_pem_private_key(key_data, password=None)
     return private_key
 
