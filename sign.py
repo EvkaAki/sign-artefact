@@ -6,6 +6,24 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 import os
 import tempfile
+from kubernetes import client, config
+
+
+def get_cert():
+    config.load_kube_config()
+
+    # Set up the API client
+    v1 = client.CoreV1Api()
+
+    # Define the secret name and namespace
+    secret_name = 'private-key-signing-models'
+    namespace = 'admin'  # Or your specific namespace
+    secret = v1.read_namespaced_secret(secret_name, namespace)
+
+    # Print secret data
+    for key, value in secret.data.items():
+        decoded_value = value.encode('utf-8')  # Decode base64 encoded data
+        print(f"Secret key: {key}, Value: {decoded_value.decode('utf-8')}")
 
 
 def get_artefact(minio_client, bucket_name, object_name):
@@ -78,6 +96,7 @@ def main():
     )
 
     artefact = get_artefact(minio_client, 'mlpipeline', artefact_name)
+    get_cert()
     if artefact:
         signed_artefact = sign(artefact, private_key_path)
         if signed_artefact:
