@@ -7,6 +7,7 @@ from cryptography.hazmat.primitives.serialization import load_pem_private_key
 import os
 import tempfile
 import base64
+import zipfile
 from kubernetes import client, config
 
 
@@ -65,16 +66,6 @@ def sign(file_path, private_key):
         return sig_file.name
 
 
-def upload_signature(minio_client, bucket_name, original_artefact, signed_sig_path):
-    try:
-        sig_object_name = f"{original_artefact}.sig"
-        minio_client.fput_object(bucket_name, sig_object_name, signed_sig_path)
-        os.remove(signed_sig_path)
-        print(f"Signature uploaded as {sig_object_name} and temporary file removed.")
-    except S3Error as e:
-        print("Error uploading signature:", e)
-
-
 def main():
     parser = argparse.ArgumentParser(description='Sign artefacts and upload to Minio.')
     parser.add_argument('--artefact-path', type=str, required=True, help='Artefact path to sign')
@@ -94,7 +85,10 @@ def main():
         private_key = get_cert()
         signed_artefact = sign(artefact, private_key)
         if signed_artefact:
-            upload_signature(minio_client, 'mlpipeline', artefact_name, signed_artefact)
+            zip_path = package_signed_artefact(artefact, signed_artefact)
+            zip_name = f"{artefact_name}.signed.zip"
+            minio_client.fput_object('mlpipeline', zip_name, zip_path)
+            print(f"Signed artefact package uploaded as: {zip_name}")
 
 
 if __name__ == "__main__":
