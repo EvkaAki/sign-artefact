@@ -12,7 +12,7 @@ def get_artefact(minio_client, bucket_name, object_name):
     # File path to save the downloaded file
     file_path = './tempfile'
     try:
-        prefix = "/mlpipeline/minio/mlpipeline/v2/"
+        prefix = "/mlpipeline/minio/mlpipeline/"
         object_name = object_name.lstrip(prefix)         # Get object and save it to file_path
         minio_client.fget_object(bucket_name, object_name, file_path)
         print("Download successful")
