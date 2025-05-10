@@ -13,5 +13,5 @@ implementation:
         /app/sign.py,
     ]
     args: [
-      --artefact-path, {inputPath: artefact path},
+      --artefact-path,
     ]
