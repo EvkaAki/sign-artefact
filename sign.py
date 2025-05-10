@@ -77,11 +77,9 @@ def package_signed_artefact(original_path, signature_path):
 def main():
     parser = argparse.ArgumentParser(description='Sign artefacts and upload to Minio.')
     parser.add_argument('--artefact-path', type=str, required=True, help='Artefact path to sign')
-    parser.add_argument('--signed-zip-path', type=str, required=True, help='Output path for the signed ZIP')
     args = parser.parse_args()
 
     artefact_name = args.artefact_path
-    output_zip_path = args.signed_zip_path
     print(f"Artefact name: {artefact_name}")
 
     minio_client = Minio(
@@ -94,12 +92,16 @@ def main():
     artefact = get_artefact(minio_client, 'mlpipeline', artefact_name)
     if artefact:
         private_key = get_cert()
-        signed_artefact = sign(artefact, private_key)
+        signature = sign(artefact, private_key)
         if signed_artefact:
-            zip_path = package_signed_artefact(artefact, signed_artefact)
+            zip_path = package_signed_artefact(artefact, signature)
             zip_name = f"{artefact_name}.signed.zip"
             minio_client.fput_object('mlpipeline', zip_name, zip_path)
-            os.rename(zip_path, output_zip_path)
+            try:
+                minio_client.remove_object("mlpipeline", artefact_name)
+                print(f"Removed original artefact: {artefact_name}")
+            except S3Error as e:
+                print(f"Error deleting original artefact: {e}")
 
             print(f"Signed artefact package uploaded as: {zip_name}")
 

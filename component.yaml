@@ -5,8 +5,6 @@ metadata:
     author: Eva Nedeliaková <evanedeliakova@gmail.com>
 inputs:
   - {name: artefact path, type: Artifact, description: 'Artefact name is used to allocate it and be able to sign it'}
-outputs:
-  - {name: signed zip path}
 implementation:
   container:
     image: endocker299/sign-artefact:latest
@@ -16,5 +14,4 @@ implementation:
     ]
     args: [
       --artefact-path, {inputPath: artefact path},
-      --signed-zip-path, {outputPath: signed zip path},
     ]
