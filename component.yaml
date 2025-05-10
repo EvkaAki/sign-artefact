@@ -16,5 +16,5 @@ implementation:
     ]
     args: [
       --artefact-path, {inputPath: artefact path},
-      --signed-zip-path, {outputPath: signed zip path}
+      --signed-zip-path, {outputPath: signed zip path},
     ]
