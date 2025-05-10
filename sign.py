@@ -93,7 +93,7 @@ def main():
     if artefact:
         private_key = get_cert()
         signature = sign(artefact, private_key)
-        if signed_artefact:
+        if signature:
             zip_path = package_signed_artefact(artefact, signature)
             zip_name = f"{artefact_name}.signed.zip"
             minio_client.fput_object('artifacts', zip_name, zip_path)
