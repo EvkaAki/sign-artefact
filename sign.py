@@ -16,9 +16,10 @@ def get_cert():
     configuration.verify_ssl = False
 
     v1 = client.CoreV1Api(client.ApiClient(configuration))
+    current_namespace = open("/var/run/secrets/kubernetes.io/serviceaccount/namespace").read()
 
     secret_name = 'private-key-signing-models'
-    namespace = 'admin'
+    namespace = current_namespace
     secret = v1.read_namespaced_secret(secret_name, namespace)
 
     key_b64 = secret.data.get("private.pem")
