@@ -6,6 +6,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 import os
 import tempfile
+import base64
 from kubernetes import client, config
 
 
