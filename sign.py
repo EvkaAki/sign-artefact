@@ -12,20 +12,22 @@ from kubernetes import client, config
 def get_cert():
     configuration = client.Configuration()
     config.load_incluster_config(client_configuration=configuration)
-
     configuration.verify_ssl = False
 
     v1 = client.CoreV1Api(client.ApiClient(configuration))
 
-    # Define the secret name and namespace
     secret_name = 'private-key-signing-models'
-    namespace = 'admin'  # Or your specific namespace
+    namespace = 'admin'
     secret = v1.read_namespaced_secret(secret_name, namespace)
 
-    # Print secret data
-    for key, value in secret.data.items():
-        decoded_value = value.encode('utf-8')  # Decode base64 encoded data
-        print(f"Secret key: {key}, Value: {decoded_value.decode('utf-8')}")
+    key_b64 = secret.data.get("private.pem")
+    if not key_b64:
+        raise ValueError("private.pem not found in secret")
+
+    # Decode base64 and load key
+    key_data = base64.b64decode(key_b64)
+    private_key = load_pem_private_key(key_data, password=None)
+    return private_key
 
 
 def get_artefact(minio_client, bucket_name, object_name):
@@ -41,15 +43,10 @@ def get_artefact(minio_client, bucket_name, object_name):
         return None
 
 
-def sign(file_path, private_key_path):
-    with open(private_key_path, "rb") as key_file:
-        private_key = load_pem_private_key(key_file.read(), password=None)
-
-    # Read the content of the file to sign
+def sign(file_path, private_key):
     with open(file_path, "rb") as f:
         data = f.read()
 
-    # Generate the signature
     signature = private_key.sign(
         data,
         padding.PSS(
@@ -59,7 +56,6 @@ def sign(file_path, private_key_path):
         hashes.SHA256()
     )
 
-    # Save the signature to a tempfile
     with tempfile.NamedTemporaryFile(delete=False) as sig_file:
         sig_file.write(signature)
         print(f"Signature saved to {sig_file.name}")
@@ -83,7 +79,6 @@ def replace_files(minio_client, bucket_name, original_artefact, signed_artefact)
 
 
 def main():
-    private_key_path = "/keys/private.pem"
     parser = argparse.ArgumentParser(description='Sign artefacts and upload to Minio.')
     parser.add_argument('--artefact-path', type=str, required=True, help='Artefact path to sign')
     args = parser.parse_args()
@@ -98,9 +93,9 @@ def main():
     )
 
     artefact = get_artefact(minio_client, 'mlpipeline', artefact_name)
-    get_cert()
     if artefact:
-        signed_artefact = sign(artefact, private_key_path)
+        private_key = get_cert()
+        signed_artefact = sign(artefact, private_key)
         if signed_artefact:
             replace_files(minio_client, 'mlpipeline', artefact_name, signed_artefact)
 
