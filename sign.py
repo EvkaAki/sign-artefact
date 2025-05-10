@@ -5,18 +5,17 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 import os
+import tempfile
 
 
 def get_artefact(minio_client, bucket_name, object_name):
-
-    # File path to save the downloaded file
-    file_path = './tempfile'
     try:
         prefix = "/mlpipeline/minio/mlpipeline/"
-        object_name = object_name.lstrip(prefix)         # Get object and save it to file_path
-        minio_client.fget_object(bucket_name, object_name, file_path)
-        print("Download successful")
-        return file_path
+        object_name = object_name.lstrip(prefix)         # Get object and save it to tempfile
+        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+            minio_client.fget_object(bucket_name, object_name, temp_file.name)
+            print("Download successful")
+            return temp_file.name
     except S3Error as e:
         print("Error during download:", e)
         return None
@@ -40,17 +39,18 @@ def sign(file_path, private_key_path):
         hashes.SHA256()
     )
 
-    signature_file_path = file_path + '.sig'
-    with open(signature_file_path, "wb") as sig_file:
+    # Save the signature to a tempfile
+    with tempfile.NamedTemporaryFile(delete=False) as sig_file:
         sig_file.write(signature)
-
-    return signature_file_path
+        print(f"Signature saved to {sig_file.name}")
+        return sig_file.name
 
 
 def replace_files(minio_client, bucket_name, original_artefact, signed_artefact):
     try:
         minio_client.fput_object(bucket_name, signed_artefact, "signature.sig")
         os.remove(signed_artefact)
+        print("Signature uploaded and original signed file removed.")
 
     except S3Error as e:
         print("Error during upload:", e)
@@ -64,20 +64,24 @@ def replace_files(minio_client, bucket_name, original_artefact, signed_artefact)
 
 def main():
     private_key_path = "/keys/private.pem"
-    parser = argparse.ArgumentParser(description='Find and delete run pods.')
-    parser.add_argument('--artefact-path', type=str)
+    parser = argparse.ArgumentParser(description='Sign artefacts and upload to Minio.')
+    parser.add_argument('--artefact-path', type=str, required=True, help='Artefact path to sign')
     args = parser.parse_args()
     artefact_name = args.artefact_path
-    print("artefact name " + artefact_name)
+    print(f"Artefact name: {artefact_name}")
+
     minio_client = Minio(
-            "minio.kubeflow.svc.cluster.local:9000",
-            access_key='minio',
-            secret_key='FY2YHUU7A4ITWS2FTSAR6VKBBH3AFL',
-            secure=False
+        "minio.kubeflow.svc.cluster.local:9000",
+        access_key='minio',
+        secret_key='FY2YHUU7A4ITWS2FTSAR6VKBBH3AFL',
+        secure=False
     )
+
     artefact = get_artefact(minio_client, 'mlpipeline', artefact_name)
-    signed_artefact = sign(artefact, private_key_path)
-    replace_files(minio_client, 'mlpipeline', artefact_name, signed_artefact)
+    if artefact:
+        signed_artefact = sign(artefact, private_key_path)
+        if signed_artefact:
+            replace_files(minio_client, 'mlpipeline', artefact_name, signed_artefact)
 
 
 if __name__ == "__main__":
