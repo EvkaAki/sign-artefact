@@ -66,13 +66,20 @@ def sign(file_path, private_key):
 
 def replace_files(minio_client, bucket_name, original_artefact, signed_artefact):
     try:
-        minio_client.fput_object(bucket_name, signed_artefact, "signature.sig")
-        os.remove(signed_artefact)
-        print("Signature uploaded and original signed file removed.")
+        # Ensure the signed_artefact file exists
+        if not os.path.exists(signed_artefact):
+            print(f"Error: Signed artefact '{signed_artefact}' does not exist.")
+            return
+
+        # Upload the signed artefact with the same name as the original artefact
+        minio_client.fput_object(bucket_name, original_artefact, signed_artefact)
+        os.remove(signed_artefact)  # Clean up the temporary signature file
+        print(f"Signature uploaded and original signed file removed.")
 
     except S3Error as e:
         print("Error during upload:", e)
 
+        # If upload fails, try to remove the original artefact from Minio
         try:
             minio_client.remove_object(bucket_name, original_artefact)
             print("Original unsigned file removed from Minio successfully")
