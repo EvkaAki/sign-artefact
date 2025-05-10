@@ -65,27 +65,14 @@ def sign(file_path, private_key):
         return sig_file.name
 
 
-def replace_files(minio_client, bucket_name, original_artefact, signed_artefact):
+def upload_signature(minio_client, bucket_name, original_artefact, signed_sig_path):
     try:
-        # Ensure the signed_artefact file exists
-        if not os.path.exists(signed_artefact):
-            print(f"Error: Signed artefact '{signed_artefact}' does not exist.")
-            return
-
-        # Upload the signed artefact with the same name as the original artefact
-        minio_client.fput_object(bucket_name, original_artefact, signed_artefact)
-        os.remove(signed_artefact)  # Clean up the temporary signature file
-        print(f"Signature uploaded and original signed file removed.")
-
+        sig_object_name = f"{original_artefact}.sig"
+        minio_client.fput_object(bucket_name, sig_object_name, signed_sig_path)
+        os.remove(signed_sig_path)
+        print(f"Signature uploaded as {sig_object_name} and temporary file removed.")
     except S3Error as e:
-        print("Error during upload:", e)
-
-        # If upload fails, try to remove the original artefact from Minio
-        try:
-            minio_client.remove_object(bucket_name, original_artefact)
-            print("Original unsigned file removed from Minio successfully")
-        except S3Error as e:
-            print("Error during deletion from Minio:", e)
+        print("Error uploading signature:", e)
 
 
 def main():
@@ -107,7 +94,7 @@ def main():
         private_key = get_cert()
         signed_artefact = sign(artefact, private_key)
         if signed_artefact:
-            replace_files(minio_client, 'mlpipeline', artefact_name, signed_artefact)
+            upload_signature(minio_client, 'mlpipeline', artefact_name, signed_artefact)
 
 
 if __name__ == "__main__":
