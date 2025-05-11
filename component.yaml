@@ -18,5 +18,5 @@ implementation:
       --artefact-path,
       { inputPath: artefact path },
       --signed-artefact-path,
-      {outputValue: signed artefact path},
+      {outputPath: signed artefact path},
     ]
