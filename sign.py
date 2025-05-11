@@ -77,6 +77,7 @@ def package_signed_artefact(original_path, signature_path):
 def main():
     parser = argparse.ArgumentParser(description='Sign artefacts and upload to Minio.')
     parser.add_argument('--artefact-path', type=str, required=True, help='Artefact path to sign')
+    parser.add_argument('--artefact-path', type=str, required=True, help='Artefact path to sign')
     args = parser.parse_args()
 
     artefact_name = args.artefact_path
