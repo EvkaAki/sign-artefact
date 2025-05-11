@@ -77,7 +77,7 @@ def package_signed_artefact(original_path, signature_path):
 def main():
     parser = argparse.ArgumentParser(description='Sign artefacts and upload to Minio.')
     parser.add_argument('--artefact-path', type=str, required=True, help='Artefact path to sign')
-    parser.add_argument('--artefact-path', type=str, required=True, help='Artefact path to sign')
+    parser.add_argument('--signed-artefact-path', type=str, required=True)
     args = parser.parse_args()
 
     artefact_name = args.artefact_path
@@ -107,6 +107,8 @@ def main():
             except S3Error as e:
                 print(f"Error deleting original artefact: {e}")
 
+            with open(args.signed_artefact_path, 'w') as f:
+                f.write(zip_name)
             print(f"Signed artefact package uploaded as: {zip_name}")
 
 
