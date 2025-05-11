@@ -6,7 +6,7 @@ metadata:
 inputs:
   - {name: artefact path, type: Artifact, description: 'Artefact name is used to allocate it and be able to sign it'}
 outputs:
-  - {name: signed artefact path, type: String}
+  - {name: signed artefact path, type: Artifact}
 implementation:
   container:
     image: endocker299/sign-artefact:latest
