@@ -108,7 +108,7 @@ def main():
                 print(f"Error deleting original artefact: {e}")
 
             with open(args.signed_artefact_path, 'w') as f:
-                f.write(zip_name)
+                f.write(str(zip_name))
             print(f"Signed artefact package uploaded as: {zip_name}")
 
 
